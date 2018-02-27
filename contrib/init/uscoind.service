@@ -1,0 +1,22 @@
+[Unit]
+Description=Uscoin's distributed currency daemon
+After=network.target
+
+[Service]
+User=uscoin
+Group=uscoin
+
+Type=forking
+PIDFile=/var/lib/uscoind/uscoind.pid
+ExecStart=/usr/bin/uscoind -daemon -pid=/var/lib/uscoind/uscoind.pid \
+-conf=/etc/uscoin/uscoin.conf -datadir=/var/lib/uscoind -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

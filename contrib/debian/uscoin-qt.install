@@ -1,0 +1,6 @@
+usr/local/bin/uscoin-qt usr/bin
+share/pixmaps/uscoin32.xpm usr/share/pixmaps
+share/pixmaps/uscoin16.xpm usr/share/pixmaps
+share/pixmaps/uscoin128.png usr/share/pixmaps
+debian/uscoin-qt.desktop usr/share/applications
+debian/uscoin-qt.protocol usr/share/kde4/services/

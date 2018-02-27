@@ -1,0 +1,13 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Uscoin Core
+Comment=Connect to the Uscoin P2P Network
+Comment[de]=Verbinde mit dem Uscoin peer-to-peer Netzwerk
+Comment[fr]=Uscoin, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Uscoin, eşten eşe kriptografik sanal para birimi
+Exec=uscoin-qt %u
+Terminal=false
+Type=Application
+Icon=uscoin128
+MimeType=x-scheme-handler/uscoin;
+Categories=Office;Finance;

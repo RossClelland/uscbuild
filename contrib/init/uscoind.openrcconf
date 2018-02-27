@@ -1,0 +1,33 @@
+# /etc/conf.d/uscoind: config file for /etc/init.d/uscoind
+
+# Config file location
+#USCOIND_CONFIGFILE="/etc/uscoin/uscoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $USCOIND_USER)
+#USCOIND_PIDDIR="/var/run/uscoind"
+
+# What filename to give the pidfile
+#USCOIND_PIDFILE="${USCOIND_PIDDIR}/uscoind.pid"
+
+# Where to write uscoind data (be mindful that the blockchain is large)
+#USCOIND_DATADIR="/var/lib/uscoind"
+
+# User and group to own uscoind process
+#USCOIND_USER="uscoin"
+#USCOIND_GROUP="uscoin"
+
+# Path to uscoind executable
+#USCOIND_BIN="/usr/bin/uscoind"
+
+# Nice value to run uscoind under
+#USCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#USCOIND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for uscoind to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+USCOIND_SIGTERM_TIMEOUT=60

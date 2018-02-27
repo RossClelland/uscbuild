@@ -1,0 +1,81 @@
+policy_module(uscoin, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type uscoin_t;
+type uscoin_exec_t;
+init_daemon_domain(uscoin_t, uscoin_exec_t)
+
+permissive uscoin_t;
+
+type uscoin_initrc_exec_t;
+init_script_file(uscoin_initrc_exec_t)
+
+type uscoin_conf_t;
+files_type(uscoin_conf_t)
+
+type uscoin_var_lib_t;
+files_type(uscoin_var_lib_t)
+
+type uscoin_var_run_t;
+files_type(uscoin_var_run_t)
+
+type uscoin_port_t;
+corenet_port(uscoin_port_t)
+
+########################################
+#
+# uscoin local policy
+#
+allow uscoin_t self:process { fork };
+
+allow uscoin_t self:fifo_file rw_fifo_file_perms;
+allow uscoin_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(uscoin_t, uscoin_conf_t, uscoin_conf_t)
+manage_files_pattern(uscoin_t, uscoin_conf_t, uscoin_conf_t)
+
+manage_dirs_pattern(uscoin_t, uscoin_var_lib_t, uscoin_var_lib_t)
+manage_files_pattern(uscoin_t, uscoin_var_lib_t, uscoin_var_lib_t)
+files_var_lib_filetrans(uscoin_t, uscoin_var_lib_t, { dir file })
+
+manage_dirs_pattern(uscoin_t, uscoin_var_run_t, uscoin_var_run_t)
+manage_files_pattern(uscoin_t, uscoin_var_run_t, uscoin_var_run_t)
+
+sysnet_dns_name_resolve(uscoin_t)
+corenet_all_recvfrom_unlabeled(uscoin_t)
+
+allow uscoin_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(uscoin_t)
+corenet_tcp_sendrecv_generic_node(uscoin_t)
+corenet_tcp_sendrecv_all_ports(uscoin_t)
+corenet_tcp_bind_generic_node(uscoin_t)
+
+gen_require(`
+    type uscoin_port_t;
+')
+allow uscoin_t uscoin_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type uscoin_port_t;
+')
+allow uscoin_t uscoin_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(uscoin_t)
+
+files_read_etc_files(uscoin_t)
+
+miscfiles_read_localization(uscoin_t)
+
+sysnet_dns_name_resolve(uscoin_t)
+
+allow uscoin_t uscoin_exec_t:file execute_no_trans;
+allow uscoin_t self:process setsched;
+corecmd_exec_ls(uscoin_t)
+corenet_tcp_connect_http_port(uscoin_t)
+dev_read_urand(uscoin_t)
+fs_getattr_xattr_fs(uscoin_t)
+kernel_read_system_state(uscoin_t)

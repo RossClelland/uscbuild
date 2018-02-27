@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/uscoin/.uscoin" ]; then
+	USCOIND_DEFAULT_DATADIR="/var/lib/uscoin/.uscoin"
+else
+	USCOIND_DEFAULT_DATADIR="/var/lib/uscoind"
+fi
+
+USCOIND_CONFIGFILE=${USCOIND_CONFIGFILE:-/etc/uscoin/uscoin.conf}
+USCOIND_PIDDIR=${USCOIND_PIDDIR:-/var/run/uscoind}
+USCOIND_PIDFILE=${USCOIND_PIDFILE:-${USCOIND_PIDDIR}/uscoind.pid}
+USCOIND_DATADIR=${USCOIND_DATADIR:-${USCOIND_DEFAULT_DATADIR}}
+USCOIND_USER=${USCOIND_USER:-${USCOIN_USER:-uscoin}}
+USCOIND_GROUP=${USCOIND_GROUP:-uscoin}
+USCOIND_BIN=${USCOIND_BIN:-/usr/bin/uscoind}
+USCOIND_NICE=${USCOIND_NICE:-${NICELEVEL:-0}}
+USCOIND_OPTS="${USCOIND_OPTS:-${USCOIN_OPTS}}"
+
+name="Uscoin Core Daemon"
+description="Uscoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/uscoind"
+command_args="-pid=\"${USCOIND_PIDFILE}\" \
+		-conf=\"${USCOIND_CONFIGFILE}\" \
+		-datadir=\"${USCOIND_DATADIR}\" \
+		-daemon \
+		${USCOIND_OPTS}"
+
+required_files="${USCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${USCOIND_USER} \
+			-N ${USCOIND_NICE} -w 2000"
+pidfile="${USCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${USCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${USCOIND_USER}:${USCOIND_GROUP}" \
+	"${USCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${USCOIND_USER}:${USCOIND_GROUP}" \
+	"${USCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${USCOIND_USER}:${USCOIND_GROUP} \
+	-m 0660 \
+	${USCOIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${USCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run uscoind."
+		eerror "The setting must appear in ${USCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Uscoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}
